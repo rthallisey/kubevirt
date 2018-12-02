@@ -45,6 +45,9 @@ type KubeInformerFactory interface {
 	// This function is thread safe and idempotent
 	Start(stopCh <-chan struct{})
 
+	// Watches for VirtOperator objects
+	VirtOperator() cache.SharedIndexInformer
+
 	// Watches for vmi objects
 	VMI() cache.SharedIndexInformer
 
@@ -139,6 +142,13 @@ func (f *kubeInformerFactory) getInformer(key string, newFunc newSharedInformer)
 	f.informers[key] = informer
 
 	return informer
+}
+
+func (f *kubeInformerFactory) VirtOperator() cache.SharedIndexInformer {
+	return f.getInformer("virtOperatorInformer", func() cache.SharedIndexInformer {
+		lw := cache.NewListWatchFromClient(f.restClient, "kubevirt", k8sv1.NamespaceAll, fields.Everything())
+		return cache.NewSharedIndexInformer(lw, &kubev1.KubeVirt{}, f.defaultResync, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc})
+	})
 }
 
 func (f *kubeInformerFactory) VMI() cache.SharedIndexInformer {

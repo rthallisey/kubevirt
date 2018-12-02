@@ -2,6 +2,24 @@
 
 package v1
 
+func (KubeVirt) SwaggerDoc() map[string]string {
+	return map[string]string{
+		"": "KubeVirt is a resources that represents an instance of a running KubeVirt deployment",
+	}
+}
+
+func (KubeVirtList) SwaggerDoc() map[string]string {
+	return map[string]string{
+		"": "KubeVirtList is a list of KubeVirt applications",
+	}
+}
+
+func (KubeVirtSpec) SwaggerDoc() map[string]string {
+	return map[string]string{
+		"": "KubeVirtSpec represents paramaters to pass to the KubeVirt application.",
+	}
+}
+
 func (VirtualMachineInstance) SwaggerDoc() map[string]string {
 	return map[string]string{
 		"":       "VirtualMachineInstance is *the* VirtualMachineInstance Definition. It represents a virtual machine in the runtime environment of kubernetes.",

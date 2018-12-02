@@ -68,6 +68,8 @@ var VirtualMachineGroupVersionKind = schema.GroupVersionKind{Group: GroupName, V
 
 var VirtualMachineInstanceMigrationGroupVersionKind = schema.GroupVersionKind{Group: GroupName, Version: GroupVersion.Version, Kind: "VirtualMachineInstanceMigration"}
 
+var KubevirtGroupVersionKind = schema.GroupVersionKind{Group: GroupName, Version: GroupVersion.Version, Kind: "Kubevirt"}
+
 // Adds the list of known types to api.Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(GroupVersion,
@@ -84,6 +86,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&metav1.GetOptions{},
 		&VirtualMachine{},
 		&VirtualMachineList{},
+		&KubeVirt{},
+		&KubeVirtList{},
 	)
 	scheme.AddKnownTypes(metav1.Unversioned,
 		&metav1.Status{},
@@ -102,6 +106,54 @@ var (
 func init() {
 	AddToScheme(Scheme)
 	AddToScheme(scheme.Scheme)
+}
+
+// KubeVirt is a resources that represents an instance of a running KubeVirt deployment
+// ---
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
+type KubeVirt struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata"`
+	Spec              KubeVirtSpec `json:"spec"`
+}
+
+// KubeVirtList is a list of KubeVirt applications
+// ---
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
+type KubeVirtList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+	Items           []KubeVirt `json:"items"`
+}
+
+// KubeVirtSpec represents paramaters to pass to the KubeVirt application.
+// ---
+// +k8s:openapi-gen=true
+type KubeVirtSpec struct {
+	Version  string
+	Registry string
+}
+
+// Required to satisfy Object interface
+func (k *KubeVirt) GetObjectKind() schema.ObjectKind {
+	return &k.TypeMeta
+}
+
+// Required to satisfy ObjectMetaAccessor interface
+func (k *KubeVirt) GetObjectMeta() metav1.Object {
+	return &k.ObjectMeta
+}
+
+// Required to satisfy Object interface
+func (kl *KubeVirtList) GetObjectKind() schema.ObjectKind {
+	return &kl.TypeMeta
+}
+
+// Required to satisfy ListMetaAccessor interface
+func (kl *KubeVirtList) GetListMeta() meta.List {
+	return &kl.ListMeta
 }
 
 // VirtualMachineInstance is *the* VirtualMachineInstance Definition. It represents a virtual machine in the runtime environment of kubernetes.
