@@ -1524,6 +1524,76 @@ var _ = Describe("VirtualMachineInstance Subresources", func() {
 		})
 	})
 
+	Context("Saving", func() {
+		It("Should save a running VMI", func() {
+
+			backend.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/v1/namespaces/default/virtualmachineinstances/testvmi/save"),
+					ghttp.RespondWith(http.StatusOK, ""),
+				),
+			)
+			expectVMI(true, false)
+
+			Expect(response.StatusCode()).To(Equal(http.StatusOK))
+		})
+
+		It("Should save a paused VMI", func() {
+
+			backend.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/v1/namespaces/default/virtualmachineinstances/testvmi/pause"),
+					ghttp.RespondWith(http.StatusOK, ""),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/v1/namespaces/default/virtualmachineinstances/testvmi/save"),
+					ghttp.RespondWith(http.StatusOK, ""),
+				),
+			)
+			expectVMI(true, true)
+
+			app.PauseVMIRequestHandler(request, response)
+			app.SaveVMIRequestHandler(request, response)
+
+			Expect(response.StatusCode()).To(Equal(http.StatusOK))
+		})
+
+		It("Should fail to save a not running VMI", func() {
+
+			expectVMI(false, false)
+
+			app.SaveVMIRequestHandler(request, response)
+
+			ExpectStatusErrorWithCode(recorder, http.StatusConflict)
+		})
+
+		It("Should fail restoring a running VMI", func() {
+
+			expectVMI(true, false)
+
+			app.RestoreVMIRequestHandler(request, response)
+
+			ExpectStatusErrorWithCode(recorder, http.StatusConflict)
+		})
+
+		It("Should restore a not running VMI", func() {
+			expectVMI(false, false)
+
+			backend.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("PUT", "/v1/namespaces/default/virtualmachineinstances/testvmi/restore"),
+					ghttp.RespondWith(http.StatusOK, ""),
+				),
+			)
+
+			app.RestoreVMIRequestHandler(request, response)
+
+			expectVMI(true, false)
+
+			Expect(response.StatusCode()).To(Equal(http.StatusOK))
+		})
+	})
+
 	AfterEach(func() {
 		server.Close()
 		backend.Close()

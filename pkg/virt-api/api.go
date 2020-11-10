@@ -230,6 +230,24 @@ func (app *virtAPIApp) composeSubresources() {
 			Returns(http.StatusNotFound, "Not Found", "").
 			Returns(http.StatusBadRequest, "Bad Request", ""))
 
+		subws.Route(subws.PUT(rest.ResourcePath(subresourcesvmiGVR)+rest.SubResourcePath("save")).
+			To(subresourceApp.SaveVMIRequestHandler).
+			Param(rest.NamespaceParam(subws)).Param(rest.NameParam(subws)).
+			Operation("save").
+			Doc("Save a VirtualMachineInstance object.").
+			Returns(http.StatusOK, "OK", "").
+			Returns(http.StatusNotFound, "Not Found", "").
+			Returns(http.StatusBadRequest, "Bad Request", ""))
+
+		subws.Route(subws.PUT(rest.ResourcePath(subresourcesvmiGVR)+rest.SubResourcePath("restore")).
+			To(subresourceApp.RestoreVMIRequestHandler).
+			Param(rest.NamespaceParam(subws)).Param(rest.NameParam(subws)).
+			Operation("restore").
+			Doc("Restore a VirtualMachineInstance object.").
+			Returns(http.StatusOK, "OK", "").
+			Returns(http.StatusNotFound, "Not Found", "").
+			Returns(http.StatusBadRequest, "Bad Request", ""))
+
 		subws.Route(subws.PUT(rest.ResourcePath(subresourcesvmiGVR)+rest.SubResourcePath("pause")).
 			To(subresourceApp.PauseVMIRequestHandler).
 			Param(rest.NamespaceParam(subws)).Param(rest.NameParam(subws)).
@@ -337,6 +355,14 @@ func (app *virtAPIApp) composeSubresources() {
 					},
 					{
 						Name:       "virtualmachineinstances/console",
+						Namespaced: true,
+					},
+					{
+						Name:       "virtualmachineinstances/save",
+						Namespaced: true,
+					},
+					{
+						Name:       "virtualmachineinstances/restore",
 						Namespaced: true,
 					},
 					{

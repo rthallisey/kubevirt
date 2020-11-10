@@ -633,6 +633,9 @@ spec:
           - virtualmachines/start
           - virtualmachines/stop
           - virtualmachines/restart
+          - virtualmachineinstances/stop
+          - virtualmachineinstances/save
+          - virtualmachineinstances/restore
           verbs:
           - update
         - apiGroups:
@@ -688,6 +691,9 @@ spec:
           - virtualmachines/start
           - virtualmachines/stop
           - virtualmachines/restart
+          - virtualmachineinstances/stop
+          - virtualmachineinstances/save
+          - virtualmachineinstances/restore
           verbs:
           - update
         - apiGroups:

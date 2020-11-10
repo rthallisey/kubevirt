@@ -5,6 +5,8 @@ option go_package = "v1";
 
 service Cmd {
   rpc SyncVirtualMachine(VMIRequest) returns (Response) {}
+  rpc SaveVirtualMachine(VMIRequest) returns (Response) {}
+  rpc RestoreVirtualMachine(VMIRequest) returns (Response) {}
   rpc PauseVirtualMachine(VMIRequest) returns (Response) {}
   rpc UnpauseVirtualMachine(VMIRequest) returns (Response) {}
   rpc ShutdownVirtualMachine(VMIRequest) returns (Response) {}
@@ -37,11 +39,12 @@ message SMBios {
 message VirtualMachineOptions {
   SMBios VirtualMachineSMBios = 1;
   uint32 MemBalloonStatsPeriod = 2;
+  string RestoreFile = 3;
 }
 
 message VMIRequest {
   VMI vmi = 1;
-  VirtualMachineOptions options = 2;
+  VirtualMachineOptions options = 3;
 }
 
 message MigrationRequest {

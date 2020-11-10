@@ -88,6 +88,8 @@ type contextStore struct {
 
 type DomainManager interface {
 	SyncVMI(*v1.VirtualMachineInstance, bool, *cmdv1.VirtualMachineOptions) (*api.DomainSpec, error)
+	SaveVMI(*v1.VirtualMachineInstance) error
+	RestoreVMI(*v1.VirtualMachineInstance, string) error
 	PauseVMI(*v1.VirtualMachineInstance) error
 	UnpauseVMI(*v1.VirtualMachineInstance) error
 	KillVMI(*v1.VirtualMachineInstance) error
@@ -1424,6 +1426,81 @@ func (l *LibvirtDomainManager) getDomainSpec(dom cli.VirDomain) (*api.DomainSpec
 		return nil, err
 	}
 	return util.GetDomainSpec(state, dom)
+}
+
+func (l *LibvirtDomainManager) SaveVMI(vmi *v1.VirtualMachineInstance) error {
+	var baseDir = "/var/run/kubevirt/%s-ram"
+	l.domainModifyLock.Lock()
+	defer l.domainModifyLock.Unlock()
+
+	logger := log.Log.Object(vmi)
+
+	domName := util.VMINamespaceKeyFunc(vmi)
+	dom, err := l.virConn.LookupDomainByName(domName)
+	if err != nil {
+		// If the VirtualMachineInstance does not exist, we are done
+		if domainerrors.IsNotFound(err) {
+			return fmt.Errorf("Domain not found.")
+		} else {
+			logger.Reason(err).Error("Getting the domain failed during save.")
+			return err
+		}
+	}
+	defer dom.Free()
+
+	domState, _, err := dom.GetState()
+	if err != nil {
+		logger.Reason(err).Error("Getting the domain state failed.")
+		return err
+	}
+
+	if domState == libvirt.DOMAIN_RUNNING || domState == libvirt.DOMAIN_PAUSED {
+
+		logger.Infof("Saving RAM to %s", fmt.Sprintf(baseDir, vmi.GetObjectMeta().GetName()))
+
+		err = dom.Save(fmt.Sprintf(baseDir, vmi.GetObjectMeta().GetName()))
+		if err != nil {
+			logger.Reason(err).Error("Signalling save failed.")
+			return err
+		}
+		logger.Infof("Signaled save for %s", vmi.GetObjectMeta().GetName())
+		if domState == libvirt.DOMAIN_PAUSED {
+			l.paused.remove(vmi.UID)
+		}
+	} else {
+		logger.Infof("Domain is not running for %s", vmi.GetObjectMeta().GetName())
+	}
+
+	return nil
+}
+
+func (l *LibvirtDomainManager) RestoreVMI(vmi *v1.VirtualMachineInstance, restoreFile string) error {
+	l.domainModifyLock.Lock()
+	defer l.domainModifyLock.Unlock()
+
+	logger := log.Log.Object(vmi)
+
+	domName := util.VMINamespaceKeyFunc(vmi)
+	dom, err := l.virConn.LookupDomainByName(domName)
+	if err != nil {
+		// If the VirtualMachineInstance does not exist, we are done
+		if domainerrors.IsNotFound(err) {
+			return fmt.Errorf("Domain not found.")
+		} else {
+			logger.Reason(err).Error("Getting the domain failed during unpause.")
+			return err
+		}
+	}
+	defer dom.Free()
+
+	err = l.virConn.DomainRestore(restoreFile)
+	if err != nil {
+		logger.Reason(err).Error("Signalling restore failed.")
+		return err
+	}
+	logger.Infof("Signaled restore for %s", vmi.GetObjectMeta().GetName())
+
+	return nil
 }
 
 func (l *LibvirtDomainManager) PauseVMI(vmi *v1.VirtualMachineInstance) error {

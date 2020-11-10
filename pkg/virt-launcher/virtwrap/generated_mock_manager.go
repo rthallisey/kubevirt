@@ -45,6 +45,26 @@ func (_mr *_MockDomainManagerRecorder) SyncVMI(arg0, arg1, arg2 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "SyncVMI", arg0, arg1, arg2)
 }
 
+func (_m *MockDomainManager) SaveVMI(_param0 *v1.VirtualMachineInstance) error {
+	ret := _m.ctrl.Call(_m, "SaveVMI", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockDomainManagerRecorder) SaveVMI(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SaveVMI", arg0)
+}
+
+func (_m *MockDomainManager) RestoreVMI(_param0 *v1.VirtualMachineInstance, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "RestoreVMI", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockDomainManagerRecorder) RestoreVMI(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RestoreVMI", arg0, arg1)
+}
+
 func (_m *MockDomainManager) PauseVMI(_param0 *v1.VirtualMachineInstance) error {
 	ret := _m.ctrl.Call(_m, "PauseVMI", _param0)
 	ret0, _ := ret[0].(error)

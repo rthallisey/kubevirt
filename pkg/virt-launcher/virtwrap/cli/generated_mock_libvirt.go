@@ -31,6 +31,16 @@ func (_m *MockConnection) EXPECT() *_MockConnectionRecorder {
 	return _m.recorder
 }
 
+func (_m *MockConnection) DomainRestore(srcFile string) error {
+	ret := _m.ctrl.Call(_m, "DomainRestore", srcFile)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockConnectionRecorder) DomainRestore(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DomainRestore", arg0)
+}
+
 func (_m *MockConnection) LookupDomainByName(name string) (VirDomain, error) {
 	ret := _m.ctrl.Call(_m, "LookupDomainByName", name)
 	ret0, _ := ret[0].(VirDomain)
@@ -251,6 +261,16 @@ func (_m *MockVirDomain) Create() error {
 
 func (_mr *_MockVirDomainRecorder) Create() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Create")
+}
+
+func (_m *MockVirDomain) Save(_param0 string) error {
+	ret := _m.ctrl.Call(_m, "Save", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockVirDomainRecorder) Save(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Save", arg0)
 }
 
 func (_m *MockVirDomain) Suspend() error {

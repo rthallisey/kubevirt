@@ -45,6 +45,8 @@ var _ = Describe("Virt remote commands", func() {
 
 	var ctrl *gomock.Controller
 
+	const restoreFile = "test-restore"
+
 	var err error
 	var shareDir string
 	var stop chan struct{}
@@ -103,6 +105,20 @@ var _ = Describe("Virt remote commands", func() {
 			vmi := v1.NewVMIReferenceFromName("testvmi")
 			domainManager.EXPECT().SignalShutdownVMI(vmi)
 			err := client.ShutdownVirtualMachine(vmi)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should save a vmi", func() {
+			vmi := v1.NewVMIReferenceFromName("testvmi")
+			domainManager.EXPECT().SaveVMI(vmi)
+			err := client.SaveVirtualMachine(vmi)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should restore a vmi", func() {
+			vmi := v1.NewVMIReferenceFromName("testvmi")
+			domainManager.EXPECT().RestoreVMI(vmi, restoreFile)
+			err := client.RestoreVirtualMachine(vmi, restoreFile)
 			Expect(err).ToNot(HaveOccurred())
 		})
 

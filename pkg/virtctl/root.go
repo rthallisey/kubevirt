@@ -14,6 +14,7 @@ import (
 	"kubevirt.io/kubevirt/pkg/virtctl/expose"
 	"kubevirt.io/kubevirt/pkg/virtctl/imageupload"
 	"kubevirt.io/kubevirt/pkg/virtctl/pause"
+	"kubevirt.io/kubevirt/pkg/virtctl/save"
 	"kubevirt.io/kubevirt/pkg/virtctl/templates"
 	"kubevirt.io/kubevirt/pkg/virtctl/version"
 	"kubevirt.io/kubevirt/pkg/virtctl/vm"
@@ -78,6 +79,8 @@ func NewVirtctlCommand() *cobra.Command {
 		vm.NewFSListCommand(clientConfig),
 		pause.NewPauseCommand(clientConfig),
 		pause.NewUnpauseCommand(clientConfig),
+		save.NewSaveCommand(clientConfig),
+		save.NewRestoreCommand(clientConfig),
 		expose.NewExposeCommand(clientConfig),
 		version.VersionCommand(clientConfig),
 		imageupload.NewImageUploadCommand(clientConfig),

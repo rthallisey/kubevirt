@@ -706,6 +706,41 @@ func (app *SubresourceAPIApp) StopVMRequestHandler(request *restful.Request, res
 	response.WriteHeader(http.StatusAccepted)
 }
 
+func (app *SubresourceAPIApp) SaveVMIRequestHandler(request *restful.Request, response *restful.Response) {
+
+	validate := func(vmi *v1.VirtualMachineInstance) *errors.StatusError {
+		condManager := controller.NewVirtualMachineInstanceConditionManager()
+		if vmi.Status.Phase != v1.Running || condManager.HasCondition(vmi, v1.VirtualMachineInstancePaused) {
+			{
+				return errors.NewConflict(v1.Resource("virtualmachineinstance"), vmi.Name, fmt.Errorf("VM is not running or paused"))
+			}
+		}
+		return nil
+	}
+
+	getURL := func(vmi *v1.VirtualMachineInstance, conn kubecli.VirtHandlerConn) (string, error) {
+		return conn.SaveURI(vmi)
+	}
+
+	app.putRequestHandler(request, response, validate, getURL)
+}
+
+func (app *SubresourceAPIApp) RestoreVMIRequestHandler(request *restful.Request, response *restful.Response) {
+
+	validate := func(vmi *v1.VirtualMachineInstance) *errors.StatusError {
+		if vmi != nil {
+			return errors.NewConflict(v1.Resource("virtualmachineinstance"), vmi.Name, fmt.Errorf("VMI exists when it should be nil"))
+		}
+		return nil
+	}
+
+	getURL := func(vmi *v1.VirtualMachineInstance, conn kubecli.VirtHandlerConn) (string, error) {
+		return conn.RestoreURI(vmi)
+	}
+	app.putRequestHandler(request, response, validate, getURL)
+
+}
+
 func (app *SubresourceAPIApp) PauseVMIRequestHandler(request *restful.Request, response *restful.Response) {
 
 	validate := func(vmi *v1.VirtualMachineInstance) *errors.StatusError {

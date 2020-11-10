@@ -158,6 +158,8 @@ type VirtualMachineInstanceInterface interface {
 	VNC(name string) (StreamInterface, error)
 	Pause(name string) error
 	Unpause(name string) error
+	Save(name string) error
+	Restore(name string, restoreFile string) error
 	GuestOsInfo(name string) (v1.VirtualMachineInstanceGuestAgentInfo, error)
 	UserList(name string) (v1.VirtualMachineInstanceGuestOSUserList, error)
 	FilesystemList(name string) (v1.VirtualMachineInstanceFileSystemList, error)

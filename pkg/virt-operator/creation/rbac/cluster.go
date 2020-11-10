@@ -149,6 +149,9 @@ func newAdminClusterRole() *rbacv1.ClusterRole {
 					"virtualmachines/start",
 					"virtualmachines/stop",
 					"virtualmachines/restart",
+					"virtualmachineinstances/stop",
+					"virtualmachineinstances/save",
+					"virtualmachineinstances/restore",
 				},
 				Verbs: []string{
 					"update",
@@ -233,6 +236,9 @@ func newEditClusterRole() *rbacv1.ClusterRole {
 					"virtualmachines/start",
 					"virtualmachines/stop",
 					"virtualmachines/restart",
+					"virtualmachineinstances/stop",
+					"virtualmachineinstances/save",
+					"virtualmachineinstances/restore",
 				},
 				Verbs: []string{
 					"update",

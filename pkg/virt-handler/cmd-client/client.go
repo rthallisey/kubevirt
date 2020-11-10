@@ -79,6 +79,8 @@ type MigrationOptions struct {
 
 type LauncherClient interface {
 	SyncVirtualMachine(vmi *v1.VirtualMachineInstance, options *cmdv1.VirtualMachineOptions) error
+	SaveVirtualMachine(vmi *v1.VirtualMachineInstance) error
+	RestoreVirtualMachine(vmi *v1.VirtualMachineInstance, restoreFile string) error
 	PauseVirtualMachine(vmi *v1.VirtualMachineInstance) error
 	UnpauseVirtualMachine(vmi *v1.VirtualMachineInstance) error
 	SyncMigrationTarget(vmi *v1.VirtualMachineInstance) error
@@ -404,6 +406,14 @@ func IsDisconnected(err error) bool {
 
 func (c *VirtLauncherClient) SyncVirtualMachine(vmi *v1.VirtualMachineInstance, options *cmdv1.VirtualMachineOptions) error {
 	return c.genericSendVMICmd("SyncVMI", c.v1client.SyncVirtualMachine, vmi, options)
+}
+
+func (c *VirtLauncherClient) SaveVirtualMachine(vmi *v1.VirtualMachineInstance) error {
+	return c.genericSendVMICmd("Save", c.v1client.SaveVirtualMachine, vmi, &cmdv1.VirtualMachineOptions{})
+}
+
+func (c *VirtLauncherClient) RestoreVirtualMachine(vmi *v1.VirtualMachineInstance, restoreFile string) error {
+	return c.genericSendVMICmd("Restore", c.v1client.RestoreVirtualMachine, vmi, &cmdv1.VirtualMachineOptions{RestoreFile: restoreFile})
 }
 
 func (c *VirtLauncherClient) PauseVirtualMachine(vmi *v1.VirtualMachineInstance) error {

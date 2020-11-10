@@ -535,6 +535,9 @@ rules:
   - virtualmachines/start
   - virtualmachines/stop
   - virtualmachines/restart
+  - virtualmachineinstances/stop
+  - virtualmachineinstances/save
+  - virtualmachineinstances/restore
   verbs:
   - update
 - apiGroups:
@@ -590,6 +593,9 @@ rules:
   - virtualmachines/start
   - virtualmachines/stop
   - virtualmachines/restart
+  - virtualmachineinstances/stop
+  - virtualmachineinstances/save
+  - virtualmachineinstances/restore
   verbs:
   - update
 - apiGroups:

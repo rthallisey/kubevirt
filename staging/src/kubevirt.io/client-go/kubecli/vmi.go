@@ -316,6 +316,22 @@ func (v *vmis) Unpause(name string) error {
 	return v.restClient.Put().RequestURI(uri).Do().Error()
 }
 
+func (v *vmis) Save(name string) error {
+	uri := fmt.Sprintf(vmiSubresourceURL, v1.ApiStorageVersion, v.namespace, name, "save")
+	return v.restClient.Put().RequestURI(uri).Do().Error()
+}
+
+func (v *vmis) Restore(name string, restoreFile string) error {
+	vmiQueryURL := vmiSubresourceURL + "%s%s"
+	uri := fmt.Sprintf(vmiQueryURL, v1.ApiStorageVersion, v.namespace, name, "restore", "?", addQuery("restoreFile", restoreFile))
+
+	return v.restClient.Put().RequestURI(uri).Do().Error()
+}
+
+func addQuery(query string, value string) string {
+	return fmt.Sprintf("%s=%s", query, value)
+}
+
 func (v *vmis) Get(name string, options *k8smetav1.GetOptions) (vmi *v1.VirtualMachineInstance, err error) {
 	vmi = &v1.VirtualMachineInstance{}
 	err = v.restClient.Get().

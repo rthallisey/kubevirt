@@ -41,6 +41,7 @@ const ConnectionInterval = 500 * time.Millisecond
 
 // TODO: Should we handle libvirt connection errors transparent or panic?
 type Connection interface {
+	DomainRestore(srcFile string) error
 	LookupDomainByName(name string) (VirDomain, error)
 	DomainDefineXML(xml string) (VirDomain, error)
 	Close() (int, error)
@@ -109,6 +110,21 @@ func (s *VirStream) UnderlyingStream() *libvirt.Stream {
 
 func (l *LibvirtConnection) SetReconnectChan(reconnect chan bool) {
 	l.reconnect = reconnect
+}
+
+func (l *LibvirtConnection) DomainRestore(srcFile string) error {
+	err := l.reconnectIfNecessary()
+	if err != nil {
+		return err
+	}
+
+	err = l.Connect.DomainRestore(srcFile)
+	if err != nil {
+		l.checkConnectionLost(err)
+		return err
+	}
+
+	return nil
 }
 
 func (l *LibvirtConnection) NewStream(flags libvirt.StreamFlags) (Stream, error) {
@@ -355,6 +371,7 @@ func (l *LibvirtConnection) checkConnectionLost(err error) {
 type VirDomain interface {
 	GetState() (libvirt.DomainState, int, error)
 	Create() error
+	Save(string) error
 	Suspend() error
 	Resume() error
 	DestroyFlags(flags libvirt.DomainDestroyFlags) error

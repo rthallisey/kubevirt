@@ -168,6 +168,42 @@ func (l *Launcher) SyncVirtualMachine(ctx context.Context, request *cmdv1.VMIReq
 	return response, nil
 }
 
+func (l *Launcher) SaveVirtualMachine(ctx context.Context, request *cmdv1.VMIRequest) (*cmdv1.Response, error) {
+	vmi, response := getVMIFromRequest(request.Vmi)
+	if !response.Success {
+		return response, nil
+	}
+
+	if err := l.domainManager.SaveVMI(vmi); err != nil {
+		log.Log.Object(vmi).Reason(err).Errorf("Failed to save vmi")
+		response.Success = false
+		response.Message = getErrorMessage(err)
+		return response, nil
+	}
+
+	log.Log.Object(vmi).Info("Saved vmi")
+	return response, nil
+}
+
+func (l *Launcher) RestoreVirtualMachine(ctx context.Context, request *cmdv1.VMIRequest) (*cmdv1.Response, error) {
+	vmi, response := getVMIFromRequest(request.Vmi)
+	if !response.Success {
+		return response, nil
+	}
+
+	f := fmt.Sprintf("RECIEVED RESTORE FILE ON SERVER!!!: %s\n", request.Options.RestoreFile)
+	log.Log.Object(vmi).Info(f)
+	if err := l.domainManager.RestoreVMI(vmi, request.Options.RestoreFile); err != nil {
+		log.Log.Object(vmi).Reason(err).Errorf("Failed to restore vmi")
+		response.Success = false
+		response.Message = getErrorMessage(err)
+		return response, nil
+	}
+
+	log.Log.Object(vmi).Info("Restored vmi")
+	return response, nil
+}
+
 func (l *Launcher) PauseVirtualMachine(ctx context.Context, request *cmdv1.VMIRequest) (*cmdv1.Response, error) {
 	vmi, response := getVMIFromRequest(request.Vmi)
 	if !response.Success {

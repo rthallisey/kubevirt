@@ -19,6 +19,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/emicklei/go-restful"
@@ -39,6 +40,69 @@ func NewLifecycleHandler(vmiInformer cache.SharedIndexInformer, virtShareDir str
 		vmiInformer:  vmiInformer,
 		virtShareDir: virtShareDir,
 	}
+}
+
+func (lh *LifecycleHandler) SaveHandler(request *restful.Request, response *restful.Response) {
+	vmi, code, err := getVMI(request, lh.vmiInformer)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to retrieve VMI")
+		response.WriteError(code, err)
+		return
+	}
+
+	sockFile, err := cmdclient.FindSocketOnHost(vmi)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to detect cmd client")
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+	client, err := cmdclient.NewClient(sockFile)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to connect cmd client")
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+
+	err = client.SaveVirtualMachine(vmi)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to save VMI")
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+
+	response.WriteHeader(http.StatusAccepted)
+}
+
+func (lh *LifecycleHandler) RestoreHandler(request *restful.Request, response *restful.Response) {
+	vmi, code, err := getVMI(request, lh.vmiInformer)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to retrieve VMI")
+		response.WriteError(code, err)
+		return
+	}
+
+	sockFile, err := cmdclient.FindSocketOnHost(vmi)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to detect cmd client")
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+	client, err := cmdclient.NewClient(sockFile)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to connect cmd client")
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+
+	restoreFile := request.QueryParameter("restoreFile")
+	if restoreFile == "" {
+		err = fmt.Errorf("Missing Query Parameter 'restoreFile'\n")
+		log.Log.Object(vmi).Reason(err).Error("Failed to provide Query Parameter 'restoreFile'")
+		response.WriteError(http.StatusBadRequest, err)
+	}
+
+	err = client.RestoreVirtualMachine(vmi, restoreFile)
+	if err != nil {
+		log.Log.Object(vmi).Reason(err).Error("Failed to restore VMI")
+		response.WriteError(http.StatusInternalServerError, err)
+	}
+
+	response.WriteHeader(http.StatusAccepted)
 }
 
 func (lh *LifecycleHandler) PauseHandler(request *restful.Request, response *restful.Response) {

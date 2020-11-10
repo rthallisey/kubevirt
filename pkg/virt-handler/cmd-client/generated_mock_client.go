@@ -43,6 +43,26 @@ func (_mr *_MockLauncherClientRecorder) SyncVirtualMachine(arg0, arg1 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "SyncVirtualMachine", arg0, arg1)
 }
 
+func (_m *MockLauncherClient) SaveVirtualMachine(vmi *v1.VirtualMachineInstance) error {
+	ret := _m.ctrl.Call(_m, "SaveVirtualMachine", vmi)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockLauncherClientRecorder) SaveVirtualMachine(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SaveVirtualMachine", arg0)
+}
+
+func (_m *MockLauncherClient) RestoreVirtualMachine(vmi *v1.VirtualMachineInstance, restoreFile string) error {
+	ret := _m.ctrl.Call(_m, "RestoreVirtualMachine", vmi, restoreFile)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockLauncherClientRecorder) RestoreVirtualMachine(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RestoreVirtualMachine", arg0, arg1)
+}
+
 func (_m *MockLauncherClient) PauseVirtualMachine(vmi *v1.VirtualMachineInstance) error {
 	ret := _m.ctrl.Call(_m, "PauseVirtualMachine", vmi)
 	ret0, _ := ret[0].(error)
